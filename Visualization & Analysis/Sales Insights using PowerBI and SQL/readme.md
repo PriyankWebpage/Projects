@@ -33,7 +33,8 @@
    
 - #### Flowchart of project execution -
 
-  ![1_khhcniAryBdmmfJt0Zk0Lg](https://user-images.githubusercontent.com/118357991/231545034-7f6cc437-5683-44f1-92df-a671540ccae9.jpg)
+  ![11](https://github.com/PriyankWebpage/Projects/assets/65448205/f228ebc0-3adf-4fac-98d1-e332e3103b50)
+
 
    
 
@@ -45,9 +46,10 @@ SQL database dump is in db_dump.sql file above. Download db_dump.sql file to you
 
 - Importing Data to MySQL workbench
 
-![Screenshot (2)](https://user-images.githubusercontent.com/118357991/233262007-c36f58cd-df19-42b5-b9cb-4d72c0ef64a4.png)
+![12](https://github.com/PriyankWebpage/Projects/assets/65448205/617779f1-6778-43fc-a33d-a4062e7b1d49)
 
-![Screenshot (3)](https://user-images.githubusercontent.com/118357991/233262064-b1fb8f0f-8c16-402d-adac-07784b81a2fe.png)
+
+![13](https://github.com/PriyankWebpage/Projects/assets/65448205/72416ea2-6195-4d1f-9563-041cf9609438)
 
 
 The import of data is done from an already existing MySQL file. This file has to be loaded into MySQL workbench for further data analysis. 
@@ -183,7 +185,7 @@ And then dataset was cleaned and transformed, it was ready to the data modeled.
 
 The sales insights data tables as show below:
 
-![Screenshot (14)](https://user-images.githubusercontent.com/118357991/234016242-369bd02e-1ddf-4047-9be4-324c83bd8761.png)
+4![14](https://github.com/PriyankWebpage/Projects/assets/65448205/073af533-73c5-4072-822a-5c3dea0df8a3)
 
 ## Data Analysis  (DAX):
 

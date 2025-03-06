@@ -1,3 +1,6 @@
+
+![Thumbnail](https://github.com/user-attachments/assets/ff45205a-8701-4e12-a408-dfe1a94aef2e)
+
 # Personal AI Trainer
 An AI-driven personal trainer designed to revolutionize your fitness journey by providing real-time feedback, performance tracking, and personalized workout plans.
 
@@ -17,6 +20,17 @@ The Personal AI Trainer leverages advanced computer vision and machine learning 
 - Tools: Jupyter Notebook, Gradio (for interactive UI)
 
 # Live Tracking
+
+https://github.com/user-attachments/assets/f045464c-4026-4e7d-b4b2-c17b1ecb9126
+
+
+
+
+
+
+
+
+
 
 
 

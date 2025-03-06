@@ -49,4 +49,8 @@ News Research ChatBot is a powerful tool that allows users to research and summa
 
 - Optionally, save the response to AWS S3.
 
+## Results
+<img width="1352" alt="Screenshot 2025-03-06 at 6 37 29 PM" src="https://github.com/user-attachments/assets/5b6dd54c-90e1-4e6b-953c-ac5a319af64b" />
+
+
 

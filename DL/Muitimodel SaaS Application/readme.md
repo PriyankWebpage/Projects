@@ -2,7 +2,7 @@
 
 # Multimodel SaaS Application for Sentiment Analysis
 
-This project focuses on building a multimodal AI model for video sentiment and emotion analysis using PyTorch. The model takes videos as input and predicts the sentiment and emotion of the content. The solution involves training the model with multiple features like text, video, and audio encoding, performing multimodal fusion, and classifying the sentiment and emotion.
+This project focuses on building a multimodal AI model for video sentiment and emotion analysis using PyTorch to detect speech, content for platforms like YouTube, TikTok, and Instagram. The model takes videos as input and predicts the sentiment and emotion of the content. The solution involves training the model with multiple features like text, video, and audio encoding, performing multimodal fusion, and classifying the sentiment and emotion.
 
 Once trained, the model is deployed using AWS SageMaker and is available for inference via an API in a SaaS application. The SaaS is built with the T3 Stack (Next.js, React, Tailwind, Auth.js), enabling users to run inference on their videos while managing monthly quotas.
 

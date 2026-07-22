@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MOSAIC — Multi-Agent Clinical Trial Intelligence Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#f4f6fb;
+    --bg1:#eef1f8;
+    --panel: rgba(255,255,255,.72);
+    --panel-solid:#ffffff;
+    --line: rgba(60,80,140,.14);
+    --text:#1b2130;
+    --sub:#5c6685;
+    --faint:#8892ab;
+
+    --cyan:#0091b8;
+    --violet:#6f56e0;
+    --magenta:#d1338e;
+    --amber:#c47700;
+    --mint:#0f9e6e;
+    --rose:#dd3f5c;
+    --blue:#2f6fe0;
+
+    --glow-cyan: 0 0 22px rgba(0,145,184,.16);
+    --glow-violet: 0 0 22px rgba(111,86,224,.16);
+    --glow-rose: 0 0 22px rgba(221,63,92,.16);
+    --glow-amber: 0 0 22px rgba(196,119,0,.14);
+    --glow-mint: 0 0 22px rgba(15,158,110,.14);
+    --glow-blue: 0 0 22px rgba(47,111,224,.16);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1200px 600px at 15% -5%, rgba(0,145,184,.07), transparent 60%),
+      radial-gradient(ellipse 1000px 700px at 90% 10%, rgba(111,86,224,.06), transparent 55%),
+      radial-gradient(ellipse 900px 900px at 50% 100%, rgba(209,51,142,.04), transparent 60%),
+      var(--bg0);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:'Inter',-apple-system,sans-serif;
+    padding:56px 28px 100px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* faint drifting grid */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, black 20%, transparent 75%);
+    opacity:.7;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .page{max-width:1440px;margin:0 auto;position:relative;z-index:1;}
+
+  header{text-align:center;margin-bottom:10px;}
+  .kicker{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--cyan);
+    text-transform:uppercase;
+    opacity:.85;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(28px,4vw,44px);
+    font-weight:700;
+    margin:0 0 12px;
+    letter-spacing:.3px;
+    background:linear-gradient(120deg, #10182c 10%, var(--cyan) 55%, var(--violet) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subtitle{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    color:var(--sub);
+    letter-spacing:.5px;
+    margin-bottom:48px;
+  }
+  .subtitle .sep{color:var(--faint); margin:0 8px;}
+
+  /* ===== connector rail ===== */
+  .rail{
+    position:relative;
+    height:46px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .rail .stem{
+    width:2px;
+    height:100%;
+    background:linear-gradient(180deg, transparent, var(--cyan) 30%, var(--violet) 70%, transparent);
+    position:relative;
+    opacity:.55;
+  }
+  .rail .stem::after{
+    content:"";
+    position:absolute;
+    left:-3px; top:0;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 12px 3px rgba(79,227,255,.8);
+    animation: pulse-down 2.4s linear infinite;
+  }
+  .rail .label{
+    position:absolute;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--sub);
+    background:var(--bg0);
+    padding:2px 8px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    letter-spacing:.5px;
+  }
+  @keyframes pulse-down{
+    0%{ top:0%; opacity:0;}
+    10%{opacity:1;}
+    90%{opacity:1;}
+    100%{ top:100%; opacity:0;}
+  }
+  .rail-multi{display:flex; gap:120px; justify-content:center;}
+  .rail-multi .rail{width:auto;}
+
+  /* ===== groups / panels ===== */
+  .row{display:flex; gap:22px; align-items:stretch;}
+  .group{
+    flex:1;
+    background:var(--panel);
+    backdrop-filter: blur(10px);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px 20px 22px;
+    position:relative;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.5) inset, 0 16px 34px -22px rgba(30,40,70,.28);
+  }
+  .group::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:18px;
+    padding:1px;
+    background:linear-gradient(135deg, var(--accent), transparent 40%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity:.6;
+    pointer-events:none;
+  }
+  .group h2{
+    margin:0 0 16px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    letter-spacing:.2px;
+  }
+  .group h2 .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 10px 2px var(--accent);
+    flex:none;
+  }
+
+  .group-inner{display:flex; flex-direction:column; gap:10px;}
+  .group-inner.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .group-inner.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .group-inner.grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .group-inner.grid6{display:grid; grid-template-columns:repeat(6,1fr); gap:10px;}
+
+  .box{
+    border-radius:12px;
+    padding:12px 13px;
+    background:rgba(30,45,90,.03);
+    border:1px solid rgba(30,45,90,.08);
+    transition:transform .18s ease, border-color .18s ease, background .18s ease;
+    position:relative;
+  }
+  .box:hover{
+    transform:translateY(-2px);
+    border-color:var(--accent);
+    background:rgba(30,45,90,.055);
+  }
+  .box .title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--text);
+    margin-bottom:5px;
+    letter-spacing:.2px;
+  }
+  .box .line{
+    font-size:11px;
+    color:var(--sub);
+    line-height:1.55;
+  }
+  .box code{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--cyan);
+    opacity:.9;
+  }
+  .box .badge{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    color:var(--accent);
+    background:rgba(30,45,90,.05);
+    border:1px solid rgba(30,45,90,.12);
+    border-radius:20px;
+    padding:2px 8px;
+    margin-top:6px;
+    letter-spacing:.3px;
+  }
+
+  /* ===== supervisor / agent graph ===== */
+  .supervisor{
+    background:linear-gradient(135deg, #0d1220, #161029);
+    border:1px solid rgba(155,140,255,.4);
+    border-radius:14px;
+    text-align:center;
+    padding:18px 22px;
+    margin-bottom:8px;
+    position:relative;
+    box-shadow:0 0 40px -8px rgba(155,140,255,.35);
+  }
+  .supervisor::before{
+    content:"◆";
+    color:var(--violet);
+    font-size:11px;
+    display:block;
+    margin-bottom:6px;
+    letter-spacing:6px;
+  }
+  .supervisor .title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:17px;
+    font-weight:700;
+    letter-spacing:.4px;
+    background:linear-gradient(90deg,#fff,var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .supervisor .sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:#a9b4d6;
+    margin-top:6px;
+    letter-spacing:.2px;
+  }
+
+  .fan-wrap{position:relative; padding-top:18px; margin-bottom:8px;}
+  .fan-wrap svg{position:absolute; top:-6px; left:0; width:100%; height:24px;}
+  .fan-label{
+    text-align:center; font-family:'JetBrains Mono',monospace;
+    font-size:10px; color:var(--faint); margin-bottom:8px; letter-spacing:.5px;
+  }
+
+  .feedback-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--rose);
+    text-align:center;
+    margin-top:12px;
+    letter-spacing:.3px;
+    opacity:.9;
+  }
+  .feedback-note::before, .feedback-note::after{content:"↺ "; }
+
+  .arrow-pair{display:flex; gap:60px; justify-content:center;}
+
+  footer{
+    text-align:center;
+    margin-top:52px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--faint);
+    letter-spacing:.5px;
+  }
+
+  @media (max-width:1080px){
+    .row{flex-direction:column;}
+    .group-inner.grid6{grid-template-columns:repeat(2,1fr);}
+    .group-inner.grid4{grid-template-columns:repeat(2,1fr);}
+    .group-inner.grid3, .group-inner.grid2{grid-template-columns:1fr;}
+    .arrow-pair, .rail-multi{gap:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="kicker">System Architecture · v1.0</div>
+    <h1>MOSAIC</h1>
+    <div class="subtitle">MULTI-AGENT&nbsp;CLINICAL&nbsp;TRIAL&nbsp;INTELLIGENCE&nbsp;ENGINE<span class="sep">//</span>LANGGRAPH&nbsp;+&nbsp;GPT-4o&nbsp;+&nbsp;LANGMEM&nbsp;+&nbsp;GCP</div>
+  </header>
+
+  <!-- ROW 1 -->
+  <div class="row">
+    <div class="group" style="--accent:var(--mint); box-shadow:var(--glow-mint), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>Data Sources</h2>
+      <div class="group-inner">
+        <div class="box">
+          <div class="title">ClinicalTrials.gov API v2</div>
+          <div class="line">400K+ studies</div>
+          <span class="badge">FREE · NO AUTH</span>
+        </div>
+        <div class="box">
+          <div class="title">PubMed eUtils API</div>
+          <div class="line">Research papers</div>
+          <span class="badge">FREE · NO AUTH</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" style="--accent:var(--amber); box-shadow:var(--glow-amber), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>Ingestion Layer</h2>
+      <div class="group-inner">
+        <div class="box">
+          <div class="title">clinical_trials_client.py</div>
+          <div class="line"><code>requests · asyncio.to_thread · retry · pagination</code></div>
+        </div>
+        <div class="box">
+          <div class="title">pubmed_client.py</div>
+          <div class="line"><code>search + efetch · XML parse · batch · rate limit</code></div>
+        </div>
+        <div class="box">
+          <div class="title">document_parser.py</div>
+          <div class="line">Raw JSON → ParsedStudy / ParsedPaper <code>(Pydantic)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" style="--accent:var(--mint); box-shadow:var(--glow-mint), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>GCP Storage Layer</h2>
+      <div class="group-inner">
+        <div class="box">
+          <div class="title">Google Cloud Storage</div>
+          <div class="line">raw/studies/ · raw/papers/<br>processed/studies/ · processed/papers/</div>
+        </div>
+        <div class="box">
+          <div class="title">Cloud SQL · PostgreSQL + pgvector</div>
+          <div class="line">studies · chunks · signals · hitl_reviews<br>episodes · procedures · sponsor_knowledge</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail-multi">
+    <div class="rail"><div class="stem"></div></div>
+    <div class="rail"><div class="stem"></div></div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row">
+    <div class="group" style="--accent:var(--violet); flex:1.15; box-shadow:var(--glow-violet), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>Processing Layer</h2>
+      <div class="group-inner grid3">
+        <div class="box">
+          <div class="title">chunker.py</div>
+          <div class="line">500 words/chunk<br>50-word overlap<br>Field-labelled<br>TextChunk output</div>
+        </div>
+        <div class="box">
+          <div class="title">embedder.py</div>
+          <div class="line">OpenAI embed<br>3-small model<br>1536 dims<br>batch size 50</div>
+        </div>
+        <div class="box">
+          <div class="title">vector_store.py</div>
+          <div class="line">asyncpg pool<br>Cosine op<br>Filter by source<br>144 chunks stored</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" style="--accent:var(--rose); box-shadow:var(--glow-rose), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>Memory Layer — LangMem</h2>
+      <div class="group-inner grid3">
+        <div class="box">
+          <div class="title">Episodic Memory</div>
+          <div class="line">Past sessions saved · semantic search<br>"What did I find before?" — never forgets</div>
+        </div>
+        <div class="box">
+          <div class="title">Procedural Memory</div>
+          <div class="line">How to reason · updated by HITL<br>Rejection → new rule, all future sessions</div>
+        </div>
+        <div class="box">
+          <div class="title">Semantic Memory</div>
+          <div class="line">Sponsor knowledge · credibility score<br>Broken promises count · avg delay days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail"><div class="stem"></div></div>
+
+  <!-- ROW 3: Agent Graph -->
+  <div class="group" style="--accent:var(--cyan); box-shadow:var(--glow-cyan), 0 20px 40px -20px rgba(0,0,0,.6); margin-bottom:0;">
+    <h2><span class="dot"></span>Agent Graph — LangGraph + GPT-4o (Parallel Execution)</h2>
+
+    <div class="supervisor">
+      <div class="title">Supervisor Agent</div>
+      <div class="sub">ROUTES TASKS · ACTIVATES SPECIALISTS · COMPILES FINAL BRIEF</div>
+    </div>
+
+    <div class="fan-label">▽ fans out to six parallel specialist agents ▽</div>
+
+    <div class="group-inner grid6">
+      <div class="box">
+        <div class="title">Broken Promises</div>
+        <div class="line">Outcome switching detection</div>
+        <span class="badge">signal: broken_promise · HITL 0.60</span>
+      </div>
+      <div class="box">
+        <div class="title">Missing Results</div>
+        <div class="line">Completed trials, no results posted</div>
+        <span class="badge">signal: missing_results · HITL 0.65</span>
+      </div>
+      <div class="box">
+        <div class="title">Track Record</div>
+        <div class="line">Sponsor credibility scores over time</div>
+        <span class="badge">signal: low_credibility · HITL 0.70</span>
+      </div>
+      <div class="box">
+        <div class="title">Pattern Finder</div>
+        <div class="line">Cross-study patterns invisible to humans</div>
+        <span class="badge">signal: cross_study · HITL 0.65</span>
+      </div>
+      <div class="box">
+        <div class="title">Side Effect Checker</div>
+        <div class="line">Filing vs papers, safety gap check</div>
+        <span class="badge">signal: safety_gap · HITL 0.55</span>
+      </div>
+      <div class="box">
+        <div class="title">Timeline Analyst</div>
+        <div class="line">Study vs own schedule, silent delay detection</div>
+        <span class="badge">signal: timeline_delay · HITL 0.60</span>
+      </div>
+    </div>
+
+    <div class="feedback-note">feedback loop — rejected signals retrain agent reasoning via Procedural Memory</div>
+  </div>
+
+  <div class="arrow-pair">
+    <div style="text-align:center;">
+      <div class="rail"><div class="stem"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:-8px;">low confidence</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="rail"><div class="stem"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:-8px;">signals</div>
+    </div>
+  </div>
+
+  <!-- ROW 4 -->
+  <div class="row">
+    <div class="group" style="--accent:var(--amber); box-shadow:var(--glow-amber), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>Human-in-the-Loop Gate</h2>
+      <div class="group-inner grid2">
+        <div class="box">
+          <div class="title">Review Queue</div>
+          <div class="line">Low-confidence signals wait for human decision<br>Approve → signals table<br>Reject → memory update<br>Edit → fix summary</div>
+        </div>
+        <div class="box">
+          <div class="title">The Learning Loop</div>
+          <div class="line">Rejection reason → ProceduralStore update<br>New rule added to agent<br>Loaded EVERY future session, permanently</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" style="--accent:var(--blue); box-shadow:var(--glow-blue), 0 20px 40px -20px rgba(0,0,0,.6);">
+      <h2><span class="dot"></span>FastAPI + Cloud Run</h2>
+      <div class="group-inner grid2">
+        <div class="box">
+          <div class="title">API Endpoints</div>
+          <div class="line"><code>POST /api/v1/analyze</code><br><code>GET /api/v1/signals</code><br><code>GET /api/v1/review/queue</code><br><code>PATCH /api/v1/review/{id}</code><br><code>GET /api/v1/memory/episodes</code><br><code>GET /api/v1/memory/procedures/{agent}</code><br><code>GET /api/v1/sponsors/{name}</code><br><code>GET /api/v1/health</code></div>
+        </div>
+        <div class="box">
+          <div class="title">Google Cloud Run</div>
+          <div class="line">Serverless · scales to zero<br>AMD64 Docker · 2GB RAM · 2vCPU</div>
+          <span class="badge">~$35–55/mo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail"><div class="stem"></div></div>
+
+  <!-- ROW 5 -->
+  <div class="group" style="--accent:var(--violet); box-shadow:var(--glow-violet), 0 20px 40px -20px rgba(0,0,0,.6);">
+    <h2><span class="dot"></span>Observability + External Intelligence</h2>
+    <div class="group-inner grid4">
+      <div class="box">
+        <div class="title">LangSmith</div>
+        <div class="line">Agent traces · token usage<br>Evals · prompt versions</div>
+      </div>
+      <div class="box">
+        <div class="title">OpenAI API</div>
+        <div class="line">GPT-4o (reasoning)<br>text-embedding-3-small</div>
+      </div>
+      <div class="box">
+        <div class="title">GCP Secret Manager</div>
+        <div class="line">OpenAI key · LangSmith key<br>DB credentials</div>
+      </div>
+      <div class="box">
+        <div class="title">GCP Cloud Logging</div>
+        <div class="line">Agent activation logs · latency<br>Pipeline health</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>MOSAIC · SYSTEM ARCHITECTURE DIAGRAM · RECONSTRUCTED FROM SOURCE SKETCH</footer>
+
+</div>
+</body>
+</html>

@@ -10,7 +10,6 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green.svg)](https://fastapi.tiangolo.com)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2.6-orange.svg)](https://langchain-ai.github.io/langgraph)
 [![GCP](<https://img.shields.io/badge/GCP-Cloud%20Run-blue.svg>)](https://cloud.google.com/run)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -605,8 +604,3 @@ gcloud sql instances patch clinical-trial-db \
 - [ ] Add support for international trial registries (EudraCT, ISRCTN)
 - [ ] Implement fine-tuned embedding model for clinical domain
 
----
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.

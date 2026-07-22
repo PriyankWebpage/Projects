@@ -137,7 +137,8 @@ curl -s -X POST \
 
 ## 🏗 Architecture
 
-<a href="Images/mosaic_architecture.html" target="_blank">👉 Link to Interactive Architecture Diagram</a>
+<a href="https://PriyankWebpage.github.io/Projects/DL/MOSAIC — Multi-Agent Clinical Trial Intelligence RAG Engine
+/Images/mosaic_architecture.html" target="_blank">👉 Link to Interactive Architecture Diagram</a>
 
 ![MOSAIC System & Data Flow Architecture](Images/image_1.png)
 
